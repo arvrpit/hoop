@@ -1,0 +1,1520 @@
+/* Hoop interface: quiet, warm, few controls. Light chips float over the dark tabletop. */
+:root {
+  --ui-bg: #fbf8f3;
+  --ui-ink: #2a231f;
+  --ui-muted: #7b6f66;
+  --ui-line: rgba(42, 35, 31, 0.1);
+  --ui-hover: rgba(42, 35, 31, 0.07);
+  --ui-active-bg: #2a231f;
+  --ui-active-ink: #fbf8f3;
+  --ui-focus: #3a6fd8;
+  --ui-shadow: 0 8px 28px rgba(20, 12, 6, 0.32), 0 1px 3px rgba(20, 12, 6, 0.2);
+  --ui-font: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.hoop-toolbar {
+  position: fixed;
+  left: 50%;
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px;
+  background: var(--ui-bg);
+  color: var(--ui-ink);
+  border: 1px solid var(--ui-line);
+  border-radius: 14px;
+  box-shadow: var(--ui-shadow);
+  font-family: var(--ui-font);
+  z-index: 20;
+  user-select: none;
+}
+.hoop-toolbar .sep {
+  width: 1px;
+  height: 24px;
+  margin: 0 6px;
+  background: var(--ui-line);
+}
+.hoop-tool {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    transform 160ms ease;
+}
+.hoop-tool:hover {
+  background: var(--ui-hover);
+}
+.hoop-tool[aria-pressed='true'] {
+  background: var(--ui-active-bg);
+  color: var(--ui-active-ink);
+  transform: translateY(-2px);
+}
+.hoop-tool:disabled {
+  opacity: 0.35;
+  cursor: default;
+  background: transparent;
+}
+.hoop-tool:focus-visible,
+.hoop-legend button:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 2px;
+}
+.hoop-tool svg {
+  width: 22px;
+  height: 22px;
+}
+/* Tooltip: name + shortcut, above the button. */
+.hoop-tool[data-tip]:hover::after,
+.hoop-tool[data-tip]:focus-visible::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: var(--ui-ink);
+  color: var(--ui-bg);
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.hoop-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.15),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.25);
+}
+
+.hoop-legend {
+  position: fixed;
+  left: max(16px, env(safe-area-inset-left, 0px));
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  width: min(300px, calc(100vw - 32px));
+  background: var(--ui-bg);
+  color: var(--ui-ink);
+  border: 1px solid var(--ui-line);
+  border-radius: 12px;
+  box-shadow: var(--ui-shadow);
+  font-family: var(--ui-font);
+  font-size: 13px;
+  z-index: 20;
+}
+.hoop-legend > button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 12px;
+}
+.hoop-legend > button .mode {
+  font-weight: 400;
+  color: var(--ui-muted);
+  margin-left: auto;
+}
+.hoop-legend > button svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 160ms ease;
+}
+.hoop-legend[data-open='true'] > button svg {
+  transform: rotate(180deg);
+}
+.hoop-legend .body {
+  padding: 0 12px 12px;
+  display: grid;
+  gap: 12px;
+}
+.hoop-legend .hint {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--ui-hover);
+  line-height: 1.45;
+}
+.hoop-legend h3 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ui-muted);
+}
+.hoop-legend section[data-current='true'] h3 {
+  color: var(--ui-ink);
+}
+.hoop-legend dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 10px;
+  align-items: baseline;
+}
+.hoop-legend dt {
+  white-space: nowrap;
+}
+.hoop-legend dd {
+  margin: 0;
+  color: var(--ui-muted);
+}
+.hoop-legend kbd {
+  display: inline-block;
+  min-width: 18px;
+  padding: 1px 5px;
+  border: 1px solid var(--ui-line);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: #fff;
+  font:
+    11px/1.4 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  text-align: center;
+  color: var(--ui-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hoop-tool,
+  .hoop-legend > button svg {
+    transition: none;
+  }
+}
+
+/* Product screen: set-up card on the left. */
+.hoop-panel {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top, 0px));
+  left: max(16px, env(safe-area-inset-left, 0px));
+  width: min(320px, calc(100vw - 32px));
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  background: var(--ui-bg);
+  color: var(--ui-ink);
+  border: 1px solid var(--ui-line);
+  border-radius: 14px;
+  box-shadow: var(--ui-shadow);
+  font-family: var(--ui-font);
+  font-size: 13px;
+  z-index: 20;
+}
+.hoop-panel section {
+  display: grid;
+  gap: 8px;
+}
+.hoop-panel h2 {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ui-muted);
+}
+.hoop-panel .seg {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--ui-hover);
+}
+.hoop-panel .seg.four {
+  grid-auto-flow: row;
+  grid-template-columns: repeat(2, 1fr);
+}
+.hoop-panel button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.hoop-panel .seg button {
+  padding: 7px 6px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+}
+.hoop-panel .seg button[aria-checked='true'] {
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(42, 35, 31, 0.18);
+  font-weight: 600;
+}
+.hoop-panel button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.hoop-panel .swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.hoop-panel .swatches button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 0;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+.hoop-panel .swatches button[aria-checked='true'] {
+  outline: 2px solid var(--ui-ink);
+  outline-offset: 2px;
+}
+.hoop-panel .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.hoop-panel .chips button,
+.hoop-panel .ghost {
+  padding: 5px 10px;
+  border: 1px solid var(--ui-line);
+  border-radius: 999px;
+  background: #fff;
+}
+.hoop-panel .row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hoop-panel .row span {
+  width: 42px;
+  color: var(--ui-muted);
+}
+.hoop-panel .row input[type='range'] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--ui-ink);
+}
+.hoop-panel .row output {
+  width: 52px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.hoop-panel .row.buttons {
+  flex-wrap: wrap;
+}
+.hoop-panel .note {
+  margin: 0;
+  color: var(--ui-muted);
+  line-height: 1.45;
+}
+.hoop-panel .error {
+  margin: 0;
+  color: #a33a22;
+}
+.hoop-panel .primary {
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--ui-active-bg);
+  color: var(--ui-active-ink);
+  font-weight: 600;
+  font-size: 14px;
+}
+.hoop-panel button:focus-visible,
+.hoop-chrome button:focus-visible,
+.hoop-zoom button:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 2px;
+}
+.hoop-credit {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  margin: 0;
+  font: 11px/1.3 var(--ui-font);
+  z-index: 10;
+}
+.hoop-credit a {
+  color: rgba(42, 35, 31, 0.6);
+  text-decoration: none;
+}
+.hoop-credit a:hover {
+  text-decoration: underline;
+}
+
+/* Hoop view: back to the product + design guide (top left), zoom (bottom right). */
+.hoop-chrome {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top, 0px));
+  left: max(16px, env(safe-area-inset-left, 0px));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: var(--ui-font);
+  font-size: 13px;
+  z-index: 20;
+}
+.hoop-chrome > * {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--ui-bg);
+  color: var(--ui-ink);
+  border: 1px solid var(--ui-line);
+  border-radius: 10px;
+  box-shadow: var(--ui-shadow);
+}
+.hoop-chrome .back {
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.hoop-chrome .guide input[type='range'] {
+  width: 90px;
+  accent-color: var(--ui-ink);
+}
+.hoop-zoom {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: var(--ui-bg);
+  color: var(--ui-ink);
+  border: 1px solid var(--ui-line);
+  border-radius: 12px;
+  box-shadow: var(--ui-shadow);
+  font-family: var(--ui-font);
+  font-size: 13px;
+  z-index: 20;
+}
+.hoop-zoom button {
+  min-width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+.hoop-zoom button:hover {
+  background: var(--ui-hover);
+}
+.hoop-zoom .fit {
+  font-size: 13px;
+  padding: 0 10px;
+}
+.hoop-zoom output {
+  min-width: 48px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Top-right action: Save & render (hoop view), Download image (finished piece). */
+.hoop-action {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  z-index: 20;
+  padding: 9px 16px;
+  font: 600 13px/1.2 var(--ui-font);
+  color: var(--ui-ink);
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-line);
+  border-radius: 10px;
+  box-shadow: var(--ui-shadow);
+  cursor: pointer;
+}
+.hoop-action.primary {
+  background: var(--ui-active-bg);
+  color: var(--ui-active-ink);
+  border-color: transparent;
+}
+.hoop-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.hoop-action:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 2px;
+}
+
+/* Piece status, shelf and finished card inside the left panel. */
+.hoop-panel .piece-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ui-line);
+}
+.hoop-panel .piece-name {
+  margin: 0;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hoop-panel .muted {
+  color: var(--ui-muted);
+  white-space: nowrap;
+}
+.hoop-panel .link {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ui-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+.hoop-panel .ghost.wide {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.hoop-panel.finished .piece-name {
+  font-size: 15px;
+}
+.hoop-panel .shelf ul {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hoop-panel .shelf li {
+  position: relative;
+}
+.hoop-panel .shelf .thumb {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+}
+.hoop-panel .shelf .thumb img,
+.hoop-panel .shelf .thumb > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--ui-line);
+}
+.hoop-panel .shelf li[data-current='true'] img {
+  outline: 2px solid var(--ui-ink);
+  outline-offset: 1px;
+}
+.hoop-panel .shelf .name {
+  font-size: 11px;
+  color: var(--ui-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hoop-panel .shelf .delete {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(251, 248, 243, 0.92);
+  box-shadow: 0 1px 3px rgba(42, 35, 31, 0.25);
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.hoop-panel .shelf li:hover .delete,
+.hoop-panel .shelf li:focus-within .delete {
+  opacity: 1;
+}
+
+/* Confirm dialog. */
+.hoop-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(20, 12, 6, 0.35);
+}
+.hoop-dialog {
+  width: min(400px, 100%);
+  padding: 20px;
+  background: var(--ui-bg);
+  color: var(--ui-ink);
+  border-radius: 14px;
+  box-shadow: var(--ui-shadow);
+  font-family: var(--ui-font);
+  font-size: 13.5px;
+}
+.hoop-dialog h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.hoop-dialog p {
+  margin: 0 0 18px;
+  color: var(--ui-muted);
+  line-height: 1.5;
+}
+.hoop-dialog .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.hoop-dialog button {
+  padding: 9px 14px;
+  border-radius: 10px;
+  font: 600 13px/1.2 var(--ui-font);
+  cursor: pointer;
+}
+.hoop-dialog .ghost {
+  border: 1px solid var(--ui-line);
+  background: #fff;
+  color: var(--ui-ink);
+}
+.hoop-dialog .primary {
+  border: 0;
+  background: var(--ui-active-bg);
+  color: var(--ui-active-ink);
+}
+.hoop-dialog .danger {
+  border: 0;
+  background: #a33a22;
+  color: #fff;
+}
+.hoop-dialog button:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hoop-panel .shelf .delete {
+    transition: none;
+  }
+}
+
+/* Stitch tool hover card: a cross-section of what the stitch does. */
+.hoop-stitch-card {
+  position: fixed;
+  box-sizing: border-box;
+  z-index: 30;
+  padding: 12px 14px 12px;
+  background: var(--ui-bg);
+  color: var(--ui-ink);
+  border: 1px solid var(--ui-line);
+  border-radius: 12px;
+  box-shadow: var(--ui-shadow);
+  font-family: var(--ui-font);
+  font-size: 12.5px;
+  pointer-events: none;
+  animation: hoop-card-in 0.14s ease-out;
+}
+.hoop-stitch-card .head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+.hoop-stitch-card kbd {
+  border: 1px solid var(--ui-line);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 1px 6px;
+  background: #fff;
+  font:
+    11px/1.4 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+}
+.hoop-stitch-card p {
+  margin: 6px 0 0;
+  color: var(--ui-muted);
+  line-height: 1.45;
+}
+.hoop-stitch-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  --ui-fabric: #efe6d8;
+  --ui-thread: #b4532a;
+}
+.hoop-stitch-diagram .side {
+  font: 600 8.5px var(--ui-font);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--ui-muted);
+}
+.hoop-stitch-diagram .thread {
+  fill: none;
+  stroke: var(--ui-thread);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.hoop-stitch-diagram .thread.ghost {
+  stroke-opacity: 0.3;
+  stroke-width: 2;
+}
+.hoop-stitch-diagram .way {
+  fill: var(--ui-thread);
+}
+.hoop-stitch-diagram .num rect {
+  fill: var(--ui-bg);
+  stroke: var(--ui-ink);
+  stroke-width: 0.8;
+}
+.hoop-stitch-diagram .num text {
+  font: 600 8px var(--ui-font);
+  fill: var(--ui-ink);
+  text-anchor: middle;
+}
+.hoop-stitch-diagram .needle path {
+  fill: #d9d3cb;
+  stroke: var(--ui-ink);
+  stroke-width: 0.9;
+  stroke-linejoin: round;
+}
+.hoop-stitch-diagram .needle .eye {
+  fill: var(--ui-bg);
+}
+@keyframes hoop-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hoop-stitch-card {
+    animation: none;
+  }
+}
+
+/* Thread rack: a drawer tucked off the left edge. Closed, only the thread on the needle peeks out;
+   hovering the edge slides it out. The thread on the needle always sits out of line, to the right. */
+.hoop-rack {
+  --rack-card: 56px; /* the visible card */
+  --rack-peek: 18px; /* how far the thread on the needle sits out of line */
+  --rack-tuck: 60px; /* how far the closed drawer slides off the edge */
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  z-index: 19; /* closed: under the Controls legend */
+  font-family: var(--ui-font);
+  color: var(--ui-ink);
+  user-select: none;
+  pointer-events: none;
+}
+.hoop-rack[data-open] {
+  z-index: 25;
+}
+/* Hover target along the left edge. */
+.hoop-rack .edge {
+  position: absolute;
+  left: 0;
+  top: 72px;
+  bottom: 72px;
+  width: 20px;
+  pointer-events: auto;
+}
+.hoop-rack .panel {
+  position: absolute;
+  left: max(16px, env(safe-area-inset-left, 0px));
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  width: calc(var(--rack-card) + 24px); /* room for the thread that sits out of line */
+  max-height: calc(100vh - 200px);
+  transform: translate(calc(-1 * var(--rack-tuck)), -50%);
+  transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hoop-rack[data-open] .panel {
+  transform: translate(0, -50%);
+  pointer-events: auto;
+}
+.hoop-rack .panel::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--rack-card);
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-line);
+  border-radius: 14px;
+  box-shadow: var(--ui-shadow);
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+.hoop-rack[data-open] .panel::before {
+  opacity: 1;
+}
+.hoop-rack ul {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 10px 24px 6px 8px;
+  list-style: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.hoop-rack ul::-webkit-scrollbar {
+  display: none;
+}
+.hoop-rack li {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  transition: opacity 180ms ease;
+}
+.hoop-rack .item {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hoop-rack li[data-active] .item {
+  transform: translateX(var(--rack-peek));
+  pointer-events: auto; /* the peeking skein opens the drawer, even when closed */
+}
+/* Closed: everything but the thread on the needle fades away. */
+.hoop-rack:not([data-open]) li:not([data-active]),
+.hoop-rack:not([data-open]) .add,
+.hoop-rack:not([data-open]) .more,
+.hoop-rack:not([data-open]) .badge {
+  opacity: 0;
+  pointer-events: none;
+}
+.hoop-rack .spool {
+  position: absolute;
+  inset: 0;
+  padding: 3px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+.hoop-rack .spool:hover {
+  background: var(--ui-hover);
+}
+.hoop-rack li[data-active] .spool,
+.hoop-rack li[data-active] .spool:hover {
+  background: var(--ui-bg);
+  box-shadow:
+    0 4px 12px rgba(20, 12, 6, 0.35),
+    0 1px 2px rgba(20, 12, 6, 0.3);
+}
+.hoop-rack .badge {
+  position: absolute;
+  left: -3px;
+  bottom: -3px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: var(--ui-bg);
+  color: var(--ui-muted);
+  box-shadow: 0 0 0 1px var(--ui-line);
+  font: 600 10px/15px var(--ui-font);
+  text-align: center;
+  transition: opacity 180ms ease;
+}
+.hoop-rack li[data-active] .badge {
+  background: var(--ui-ink);
+  color: var(--ui-bg);
+}
+/* An unfinished line: a small dot (picking the thread up carries it on). */
+.hoop-rack .open {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e0a42a;
+  box-shadow: 0 0 0 2px var(--ui-bg);
+}
+/* ⋯ sits on the skein's top-right corner, shown on hover or focus. */
+.hoop-rack .more {
+  position: absolute;
+  right: -5px;
+  top: -5px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--ui-line);
+  border-radius: 50%;
+  background: var(--ui-bg);
+  color: var(--ui-ink);
+  box-shadow: 0 1px 3px rgba(20, 12, 6, 0.25);
+  font: 700 11px/1 var(--ui-font);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+.hoop-rack[data-open] .item:hover .more,
+.hoop-rack[data-open] .more:focus-visible,
+.hoop-rack[data-open] .more[aria-expanded='true'] {
+  opacity: 1;
+  pointer-events: auto;
+}
+.hoop-rack .add {
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  margin: 2px 0 10px 10px;
+  border: 1.5px dashed rgba(42, 35, 31, 0.3);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ui-muted);
+  font: 400 20px/1 var(--ui-font);
+  cursor: pointer;
+  transition: opacity 180ms ease;
+}
+.hoop-rack .add:hover {
+  border-color: var(--ui-ink);
+  color: var(--ui-ink);
+}
+.hoop-rack button:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 2px;
+}
+.hoop-rack .tip {
+  position: fixed;
+  transform: translateY(-50%);
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: var(--ui-ink);
+  color: var(--ui-bg);
+  font: 12px/1.2 var(--ui-font);
+  white-space: nowrap;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hoop-rack .panel,
+  .hoop-rack .item,
+  .hoop-rack li,
+  .hoop-rack .panel::before {
+    transition: none;
+  }
+}
+
+/* A wound skein of thread. */
+.hoop-skein {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.32) 0 18%, transparent 19%),
+    repeating-linear-gradient(118deg, rgba(255, 255, 255, 0.16) 0 1px, transparent 1px 3px),
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.38), transparent 58%),
+    radial-gradient(circle at 50% 50%, transparent 52%, rgba(0, 0, 0, 0.28) 100%), var(--c);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.16);
+}
+.hoop-skein[data-material='silk'] {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.3) 0 18%, transparent 19%),
+    repeating-linear-gradient(118deg, rgba(255, 255, 255, 0.1) 0 1px, transparent 1px 2px),
+    linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.55) 45%, transparent 60%),
+    radial-gradient(circle at 50% 50%, transparent 52%, rgba(0, 0, 0, 0.3) 100%), var(--c);
+}
+.hoop-skein[data-material='wool'] {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.25) 0 18%, transparent 21%),
+    repeating-linear-gradient(118deg, rgba(255, 255, 255, 0.1) 0 2px, transparent 2px 5px),
+    radial-gradient(circle at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.2) 100%), var(--c);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.1),
+    0 0 0 1.5px color-mix(in srgb, var(--c) 45%, transparent);
+}
+.hoop-skein[data-material='perle'] {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.32) 0 18%, transparent 19%),
+    repeating-linear-gradient(118deg, rgba(255, 255, 255, 0.24) 0 1.5px, rgba(0, 0, 0, 0.12) 1.5px 3px),
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.4), transparent 58%),
+    radial-gradient(circle at 50% 50%, transparent 52%, rgba(0, 0, 0, 0.28) 100%), var(--c);
+}
+
+/* Thread menu (⋯ on a skein): edit, rename, remove. */
+.hoop-menu {
+  position: fixed;
+  z-index: 40;
+  min-width: 168px;
+  padding: 4px;
+  background: var(--ui-bg);
+  color: var(--ui-ink);
+  border: 1px solid var(--ui-line);
+  border-radius: 10px;
+  box-shadow: var(--ui-shadow);
+  font: 13px/1.2 var(--ui-font);
+}
+.hoop-menu > button {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.hoop-menu > button:hover:not(:disabled),
+.hoop-menu > button:focus-visible {
+  background: var(--ui-hover);
+  outline: none;
+}
+.hoop-menu > button.danger {
+  color: #a33a22;
+}
+.hoop-menu > button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.hoop-menu form {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+}
+.hoop-menu input {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 8px;
+  border: 1px solid var(--ui-line);
+  border-radius: 7px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+}
+.hoop-menu .primary {
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: var(--ui-active-bg);
+  color: var(--ui-active-ink);
+  font: 600 12.5px/1 var(--ui-font);
+  cursor: pointer;
+}
+
+/* Thread picker: floats beside the rack. */
+.hoop-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+}
+.hoop-picker {
+  position: fixed;
+  left: calc(max(16px, env(safe-area-inset-left, 0px)) + 80px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 300px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  padding: 14px 16px 16px;
+  background: var(--ui-bg);
+  color: var(--ui-ink);
+  border: 1px solid var(--ui-line);
+  border-radius: 14px;
+  box-shadow: var(--ui-shadow);
+  font: 13px/1.3 var(--ui-font);
+  outline: none;
+}
+@media (max-width: 520px) {
+  .hoop-picker {
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100vw - 32px);
+  }
+}
+.hoop-picker header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.hoop-picker h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.hoop-picker h3 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ui-muted);
+}
+.hoop-picker section {
+  margin-top: 12px;
+}
+.hoop-picker .icon {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ui-muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.hoop-picker .icon:hover {
+  background: var(--ui-hover);
+  color: var(--ui-ink);
+}
+.hoop-picker .preview-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.hoop-picker .name {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.hoop-picker .name span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ui-muted);
+}
+.hoop-picker input:not([type='range']) {
+  padding: 7px 8px;
+  border: 1px solid var(--ui-line);
+  border-radius: 7px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  min-width: 0;
+}
+.hoop-picker .card {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+.hoop-picker .card button,
+.hoop-picker .shades button {
+  height: 26px;
+  border: 0;
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
+  cursor: pointer;
+}
+.hoop-picker .card button[aria-checked='true'],
+.hoop-picker .shades button[aria-checked='true'] {
+  box-shadow:
+    0 0 0 2px var(--ui-bg),
+    0 0 0 4px var(--ui-ink);
+}
+.hoop-picker .shades {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+.hoop-picker .channel {
+  display: grid;
+  grid-template-columns: 14px 1fr 52px;
+  gap: 8px;
+  align-items: center;
+  margin-top: 6px;
+}
+.hoop-picker .channel > span {
+  font-weight: 600;
+  color: var(--ui-muted);
+}
+.hoop-picker .channel.hex {
+  grid-template-columns: 14px 1fr;
+}
+.hoop-picker .channel input[type='number'] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+/* Colour sliders: the track shows the colours the slider makes. */
+.hoop-picker .channel input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 12px;
+  margin: 0;
+  border-radius: 6px;
+  background: var(--track);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+.hoop-picker .channel input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--ui-ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.hoop-picker .channel input[type='range']::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--ui-ink);
+}
+.hoop-picker .channel input[type='range']:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 3px;
+}
+.hoop-picker .seg {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  padding: 2px;
+  border-radius: 9px;
+  background: rgba(42, 35, 31, 0.06);
+}
+.hoop-picker .seg button {
+  padding: 7px 0;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  font: 500 12.5px/1 var(--ui-font);
+  cursor: pointer;
+}
+.hoop-picker .seg button[aria-checked='true'] {
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  font-weight: 600;
+}
+.hoop-picker .strands {
+  display: grid;
+  grid-template-columns: 1fr 24px;
+  align-items: center;
+  column-gap: 8px;
+}
+.hoop-picker .strands h3 {
+  grid-column: 1 / -1;
+}
+.hoop-picker .strands input {
+  accent-color: var(--ui-ink);
+}
+.hoop-picker .strands output {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.hoop-picker .note {
+  margin: 12px 0 0;
+  color: var(--ui-muted);
+}
+.hoop-picker footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+.hoop-picker footer button {
+  padding: 9px 14px;
+  border-radius: 10px;
+  font: 600 13px/1.2 var(--ui-font);
+  cursor: pointer;
+}
+.hoop-picker .ghost {
+  border: 1px solid var(--ui-line);
+  background: #fff;
+  color: var(--ui-ink);
+}
+.hoop-picker .primary {
+  border: 0;
+  background: var(--ui-active-bg);
+  color: var(--ui-active-ink);
+}
+.hoop-picker button:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 2px;
+}
+
+/* Live preview: a little patch of satin stitches (thicker with more strands). */
+.hoop-thread-preview {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  background:
+    repeating-linear-gradient(
+      100deg,
+      rgba(0, 0, 0, 0.28) 0,
+      transparent calc(1px + var(--strands) * 0.4px),
+      rgba(255, 255, 255, 0.22) calc(2px + var(--strands) * 0.8px),
+      transparent calc(3px + var(--strands) * 1.2px),
+      rgba(0, 0, 0, 0.28) calc(4px + var(--strands) * 1.6px)
+    ),
+    var(--c);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.15),
+    0 0 0 4px #efe6d8;
+}
+.hoop-thread-preview[data-material='silk'] {
+  background:
+    linear-gradient(120deg, transparent 25%, rgba(255, 255, 255, 0.4) 45%, transparent 65%),
+    repeating-linear-gradient(
+      100deg,
+      rgba(0, 0, 0, 0.2) 0,
+      transparent calc(1px + var(--strands) * 0.4px),
+      rgba(255, 255, 255, 0.25) calc(2px + var(--strands) * 0.8px),
+      transparent calc(3px + var(--strands) * 1.2px),
+      rgba(0, 0, 0, 0.2) calc(4px + var(--strands) * 1.6px)
+    ),
+    var(--c);
+}
+
+/* Short notes above the toolbar. */
+.hoop-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 66px);
+  transform: translateX(-50%);
+  z-index: 30;
+  pointer-events: none;
+}
+.hoop-toast span {
+  display: block;
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: var(--ui-ink);
+  color: var(--ui-bg);
+  font: 12.5px/1.2 var(--ui-font);
+  white-space: nowrap;
+  animation: hoop-toast 1800ms ease both;
+}
+@keyframes hoop-toast {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  10%,
+  85% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hoop-toast span {
+    animation: none;
+  }
+  .hoop-rack .spool {
+    transition: none;
+  }
+}
+
+/* "How it works" link under Start stitching. */
+.hoop-panel .link.how {
+  justify-self: center;
+  margin: -6px 0 0;
+  color: var(--ui-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Onboarding: four steps, each with a picture of the piece. */
+.hoop-onboarding-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(20, 12, 6, 0.5);
+}
+.hoop-onboarding {
+  width: min(560px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  background: var(--ui-bg);
+  color: var(--ui-ink);
+  border-radius: 16px;
+  box-shadow: var(--ui-shadow);
+  font: 14px/1.5 var(--ui-font);
+}
+.hoop-onboarding figure {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 16 / 10;
+  background: #3a2c22;
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
+}
+.hoop-onboarding img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 260ms ease;
+}
+.hoop-onboarding img[data-current] {
+  opacity: 1;
+}
+.hoop-onboarding .close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(251, 248, 243, 0.92);
+  color: var(--ui-ink);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.hoop-onboarding .body {
+  padding: 18px 22px 20px;
+}
+.hoop-onboarding .kicker {
+  margin: 0 0 4px;
+  color: var(--ui-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+.hoop-onboarding h2 {
+  margin: 0 0 6px;
+  font-size: 19px;
+  font-weight: 650;
+}
+.hoop-onboarding .body > p:not(.kicker) {
+  margin: 0;
+  min-height: 3em;
+  color: #4d433c;
+}
+.hoop-onboarding .foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+.hoop-onboarding .dots {
+  display: flex;
+  gap: 6px;
+  margin-right: auto;
+}
+.hoop-onboarding .dots button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: rgba(42, 35, 31, 0.2);
+  cursor: pointer;
+  transition: width 200ms ease;
+}
+.hoop-onboarding .dots button[aria-current='step'] {
+  width: 22px;
+  background: var(--ui-ink);
+}
+.hoop-onboarding .foot > button {
+  padding: 9px 16px;
+  border-radius: 10px;
+  font: 600 13px/1.2 var(--ui-font);
+  cursor: pointer;
+}
+.hoop-onboarding .ghost {
+  border: 1px solid var(--ui-line);
+  background: #fff;
+  color: var(--ui-ink);
+}
+.hoop-onboarding .primary {
+  min-width: 84px;
+  border: 0;
+  background: var(--ui-active-bg);
+  color: var(--ui-active-ink);
+}
+.hoop-onboarding button:focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hoop-onboarding img,
+  .hoop-onboarding .dots button {
+    transition: none;
+  }
+}
+
+/* Drawn swatches (real thread shader) sit over the CSS fallbacks once they're painted. */
+.hoop-skein,
+.hoop-thread-preview {
+  position: relative;
+  overflow: hidden;
+}
+.hoop-skein canvas,
+.hoop-thread-preview canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+.hoop-skein[data-drawn] canvas,
+.hoop-thread-preview[data-drawn] canvas {
+  opacity: 1;
+}
+/* The skein's hole and roundness, over the drawn threads. */
+.hoop-skein[data-drawn]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.38) 0 15%, rgba(0, 0, 0, 0.12) 19%, transparent 24%),
+    radial-gradient(circle at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.3) 100%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.16);
+}
